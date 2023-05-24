@@ -5,6 +5,7 @@ RTCONFIG_H = rtconfig.h
 
 NAME = rtthread
 SRCS = 
+CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
 -include $(FILE_MK)
 include $(AM_HOME)/Makefile
 
@@ -18,6 +19,7 @@ $(FILE_MK): $(RTCONFIG_H)
 	cat $(FILE_TMP) | grep -o '[^ ]*.c$$' | awk '{print "SRCS += " $$1}' > $@
 	cat $(FILE_TMP) | grep 'gcc ' | head -n 1 | grep -o " -I[^ ]*" | awk '{print "CFLAGS += " $$1}' >> $@
 	rm $(FILE_TMP)
+	if [ "`sed -n '3p' $^`"x = x ]; then sed -i -e '2a#include "extra.h"' $^; fi
 
 menuconfig:
 	scons --menuconfig
