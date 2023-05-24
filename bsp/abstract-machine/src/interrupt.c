@@ -6,5 +6,5 @@ void rt_hw_interrupt_enable() {
 }
 
 void rt_hw_interrupt_disable() {
-  assert(0);
+  iset(0);
 }
