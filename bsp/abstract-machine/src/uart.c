@@ -37,8 +37,8 @@ static int _uart_putc(struct rt_serial_device *serial, char c) {
 }
 
 static int _uart_getc(struct rt_serial_device *serial) {
-  assert(0);
-  return -1;
+  static const char *p = "help\n";
+  return (*p != '\0' ? *(p ++) : -1);
 }
 
 const struct rt_uart_ops _uart_ops = {
