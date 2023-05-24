@@ -40,6 +40,8 @@
 #define DBG_LVL    DBG_INFO
 #include <rtdbg.h>
 
+#undef __isleap
+
 #define _WARNING_NO_RTC "Cannot find a RTC device!"
 
 /* seconds per day */
