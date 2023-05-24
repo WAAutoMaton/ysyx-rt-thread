@@ -4,7 +4,7 @@ FILE_TMP = .tmp.$(FILE_MK)
 RTCONFIG_H = rtconfig.h
 
 NAME = rtthread
-SRCS = 
+SRCS = $(shell find src -name "*.c")
 CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
 -include $(FILE_MK)
 include $(AM_HOME)/Makefile
