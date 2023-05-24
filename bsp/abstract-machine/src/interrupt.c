@@ -2,7 +2,7 @@
 #include <klib.h>
 
 void rt_hw_interrupt_enable() {
-  assert(0);
+  iset(1);
 }
 
 void rt_hw_interrupt_disable() {
