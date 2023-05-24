@@ -1,9 +1,6 @@
 #include <am.h>
 #include <rtthread.h>
 
-void *__fsymtab_start = NULL;
-void *__fsymtab_end = NULL;
-
 #define RT_HW_HEAP_BEGIN heap.start
 #define RT_HW_HEAP_END heap.end
 
