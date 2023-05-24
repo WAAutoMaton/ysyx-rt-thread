@@ -189,6 +189,7 @@ void main_thread_entry(void *parameter)
 #ifdef RT_USING_SMP
     rt_hw_secondary_cpu_up();
 #endif /* RT_USING_SMP */
+#if 0
     /* invoke system main function */
 #ifdef __ARMCC_VERSION
     {
@@ -197,6 +198,7 @@ void main_thread_entry(void *parameter)
     }
 #elif defined(__ICCARM__) || defined(__GNUC__) || defined(__TASKING__) || defined(__TI_COMPILER_VERSION__)
     main();
+#endif
 #endif
 }
 
