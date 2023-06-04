@@ -1,9 +1,6 @@
 SECTIONS {
-  . = ALIGN(8);
-
-  .myextra : {
+  .data.extra : {
     /* section information for finsh shell */
-    . = ALIGN(8);
     __fsymtab_start = .;
     KEEP(*(FSymTab))
     __fsymtab_end = .;
@@ -24,7 +21,5 @@ SECTIONS {
     KEEP(*(UtestTcTab))
     __rt_utest_tc_tab_end = .;
   }
-  end = .;
-  _end = .;
-  _heap_start = ALIGN(0x1000);
 }
+INSERT BEFORE .data;
