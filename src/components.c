@@ -21,7 +21,10 @@
 #include <rtthread.h>
 
 #ifdef RT_USING_USER_MAIN
-#ifndef RT_MAIN_THREAD_STACK_SIZE
+#ifdef __ISA_NATIVE__
+#undef RT_MAIN_THREAD_STACK_SIZE
+#define RT_MAIN_THREAD_STACK_SIZE     (4096 * 3)
+#elif !defined(RT_MAIN_THREAD_STACK_SIZE)
 #define RT_MAIN_THREAD_STACK_SIZE     2048
 #endif /* RT_MAIN_THREAD_STACK_SIZE */
 #ifndef RT_MAIN_THREAD_PRIORITY
