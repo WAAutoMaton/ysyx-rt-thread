@@ -171,7 +171,7 @@ int finsh_getchar(void)
 
     while (rt_device_read(device, -1, &ch, 1) != 1)
     {
-        rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER);
+        //rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER);
         if (shell->device != device)
         {
             device = shell->device;
