@@ -1,5 +1,6 @@
 #include <am.h>
 #include <rtthread.h>
+#include <klib-macros.h>
 
 #define RT_HW_HEAP_BEGIN heap.start
 #define RT_HW_HEAP_END heap.end
@@ -28,6 +29,12 @@ void rt_hw_board_init() {
 }
 
 int main() {
+  ioe_init();
+#ifdef __ISA_NATIVE__
+  // trigger the real initialization of IOE to
+  // perform SDL initialization int this main thread with large stack
+  io_read(AM_TIMER_CONFIG);
+#endif
   extern void __am_cte_init();
   __am_cte_init();
   extern int entry(void);
