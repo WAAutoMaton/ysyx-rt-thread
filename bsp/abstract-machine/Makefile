@@ -9,6 +9,7 @@ CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
 CFLAGS += -Wno-nonnull-compare
 LDFLAGS += -T extra.ld
 -include $(FILE_MK)
+-include am-apps.mk
 include $(AM_HOME)/Makefile
 
 $(RTCONFIG_H):
