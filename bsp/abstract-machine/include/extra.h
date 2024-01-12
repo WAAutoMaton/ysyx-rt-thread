@@ -31,4 +31,7 @@ typedef unsigned long useconds_t;
 #define chdir     rt_chdir
 #define setcwd    rt_setcwd
 #define getcwd    rt_getcwd
+
+#define gettimeofday rt_gettimeofday
+
 #endif
