@@ -2,8 +2,11 @@
 #include <rtthread.h>
 #include <klib-macros.h>
 
+#define AM_APPS_HEAP_SIZE  0x2000000
 #define RT_HW_HEAP_BEGIN heap.start
 #define RT_HW_HEAP_END heap.end
+
+Area am_apps_heap;
 
 void rt_hw_board_init() {
   int rt_hw_uart_init(void);
@@ -13,6 +16,11 @@ void rt_hw_board_init() {
   /* initialize memory system */
   rt_system_heap_init(RT_HW_HEAP_BEGIN, RT_HW_HEAP_END);
 #endif
+
+  uint32_t size = AM_APPS_HEAP_SIZE;
+  void *p = NULL;
+  for (; p == NULL && size != 0; size /= 2) { p = rt_malloc(size); }
+  am_apps_heap = (Area) { .start = p, .end = p + size };
 
 #ifdef RT_USING_CONSOLE
   /* set console device */

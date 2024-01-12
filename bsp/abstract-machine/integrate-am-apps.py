@@ -52,6 +52,7 @@ def integrate(app_dir):
     os.remove(redefine_sym_file)
     am_app_c_fp.write(f"""extern int __am_{app_name}_main(const char *);
 static void am_{app_name}(int argc, char *argv[]) {{
+  heap = am_apps_heap;
   __am_{app_name}_main(argc >= 2 ? argv[1] : "");
 }}
 MSH_CMD_EXPORT(am_{app_name}, AM {app_name});""")
@@ -62,6 +63,7 @@ read_lib_symbols("klib")
 am_app_mk_fp.write("SRCS += build/am-apps.c\n")
 am_app_c_fp.write("""#include <am.h>
 #include <rtthread.h>
+extern Area am_apps_heap;
 bool __dummy_ioe_init() { return true; }
 bool __dummy_cte_init(Context *(*handler)(Event ev, Context *ctx)) { return true; }
 bool __dummy_vme_init(void *(*pgalloc)(int), void (*pgfree)(void *)) { return true; }
