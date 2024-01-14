@@ -492,6 +492,11 @@ rt_thread_t rt_thread_create(const char *name,
     if (thread == RT_NULL)
         return RT_NULL;
 
+#ifdef __ISA_NATIVE__
+    const rt_uint32_t stack_size_min = 0x4000;
+    if (stack_size < stack_size_min) stack_size = stack_size_min;
+#endif
+
     stack_start = (void *)RT_KERNEL_MALLOC(stack_size);
     if (stack_start == RT_NULL)
     {
