@@ -1,12 +1,14 @@
 #include <am.h>
 #include <rtthread.h>
+#include <klib.h>
 #include <klib-macros.h>
 
 #define AM_APPS_HEAP_SIZE  0x2000000
 #define RT_HW_HEAP_BEGIN heap.start
 #define RT_HW_HEAP_END heap.end
 
-Area am_apps_heap;
+Area am_apps_heap = {}, am_apps_data = {}, am_apps_bss = {};
+uint8_t * am_apps_data_content = NULL;
 
 void rt_hw_board_init() {
   int rt_hw_uart_init(void);
@@ -20,7 +22,17 @@ void rt_hw_board_init() {
   uint32_t size = AM_APPS_HEAP_SIZE;
   void *p = NULL;
   for (; p == NULL && size != 0; size /= 2) { p = rt_malloc(size); }
-  am_apps_heap = (Area) { .start = p, .end = p + size };
+  am_apps_heap = RANGE(p, p + size);
+
+  extern char __am_apps_data_start, __am_apps_data_end;
+  extern char __am_apps_bss_start, __am_apps_bss_end;
+  am_apps_data = RANGE(&__am_apps_data_start, &__am_apps_data_end);
+  am_apps_bss  = RANGE(&__am_apps_bss_start,  &__am_apps_bss_end);
+
+  uint32_t data_size = am_apps_data.end - am_apps_data.start;
+  am_apps_data_content = rt_malloc(data_size);
+  assert(am_apps_data_content != NULL);
+  memcpy(am_apps_data_content, am_apps_data.start, data_size);
 
 #ifdef RT_USING_CONSOLE
   /* set console device */

@@ -49,7 +49,7 @@ def integrate(app_dir):
             redefine_sym_fp.write(f"__am_{app_name}_{f} {f}\n")
     redefine_sym_fp.close()
     for obj in objs:
-        os.system(f"objcopy --prefix-symbols=__am_{app_name}_ {str(obj)}")
+        os.system(f"objcopy --prefix-symbols=__am_{app_name}_ --prefix-sections=__am_apps {str(obj)}")
         os.system(f"objcopy --redefine-syms=redefine_sym.txt {str(obj)}")
         am_app_mk_fp.write("SRCS += " + str(obj.relative_to("build/" + ARCH)) + "\n")
     os.remove(redefine_sym_file)
@@ -65,14 +65,18 @@ read_lib_symbols("klib")
 
 am_app_mk_fp.write("SRCS += build/am-apps.c\n")
 am_app_c_fp.write("""#include <am.h>
+#include <klib.h>
 #include <rtthread.h>
-extern Area am_apps_heap;
+extern Area am_apps_heap, am_apps_data, am_apps_bss;
+extern uint8_t * am_apps_data_content;
 static void am_app_start_thread(void *args) {
   void (*fn)(const char *mainargs) = ((void **)args)[0];
   const char *mainargs = ((void **)args)[1];
   fn(mainargs);
 }
 static void am_app_start_wrapper(const char *app_name, void *app_main, int argc, char *argv[]) {
+  memcpy(am_apps_data.start, am_apps_data_content, am_apps_data.end - am_apps_data.start);
+  memset(am_apps_bss.start, 0, am_apps_bss.end - am_apps_bss.start);
   heap = am_apps_heap;
   void *args[2] = { app_main, (argc >= 2 ? argv[1] : "") };
   rt_thread_t tid = rt_thread_create(app_name, am_app_start_thread, args, 0x4000, 0, 20);
