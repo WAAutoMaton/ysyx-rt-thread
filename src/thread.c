@@ -1160,4 +1160,9 @@ rt_err_t rt_thread_get_name(rt_thread_t thread, char *name, rt_uint8_t name_size
 }
 RTM_EXPORT(rt_thread_get_name);
 
+void rt_thread_exit(void) {
+  _thread_exit();
+}
+RTM_EXPORT(rt_thread_exit);
+
 /**@}*/

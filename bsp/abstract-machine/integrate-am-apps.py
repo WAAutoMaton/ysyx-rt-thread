@@ -43,6 +43,8 @@ def integrate(app_dir):
     for f in lib_sym:
         if f in am_init_sym:
             redefine_sym_fp.write(f"__am_{app_name}_{f} __dummy_{f}\n")
+        elif f == "halt":
+            redefine_sym_fp.write(f"__am_{app_name}_{f} __rt_am_halt\n")
         else:
             redefine_sym_fp.write(f"__am_{app_name}_{f} {f}\n")
     redefine_sym_fp.close()
@@ -52,9 +54,15 @@ def integrate(app_dir):
         am_app_mk_fp.write("SRCS += " + str(obj.relative_to("build/" + ARCH)) + "\n")
     os.remove(redefine_sym_file)
     am_app_c_fp.write(f"""extern int __am_{app_name}_main(const char *);
+static void am_{app_name}_thread(void *mainargs) {{
+  __am_{app_name}_main(mainargs);
+}}
 static void am_{app_name}(int argc, char *argv[]) {{
   heap = am_apps_heap;
-  __am_{app_name}_main(argc >= 2 ? argv[1] : "");
+  char *mainargs = argc >= 2 ? argv[1] : "";
+  rt_thread_t tid = rt_thread_create("{app_name}", am_{app_name}_thread, mainargs, 0x4000, 0, 20);
+  rt_thread_startup(tid);
+  rt_thread_yield();
 }}
 MSH_CMD_EXPORT(am_{app_name}, AM {app_name});""")
 
@@ -69,6 +77,10 @@ bool __dummy_ioe_init() { return true; }
 bool __dummy_cte_init(Context *(*handler)(Event ev, Context *ctx)) { return true; }
 bool __dummy_vme_init(void *(*pgalloc)(int), void (*pgfree)(void *)) { return true; }
 bool __dummy_mpe_init(void (*entry)()) { return true; }
+void __rt_am_halt(int code) {
+  void rt_thread_exit(void);
+  rt_thread_exit();
+}
 """)
 for app in app_dir_list:
     integrate(app)
