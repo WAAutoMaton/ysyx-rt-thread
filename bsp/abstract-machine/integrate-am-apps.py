@@ -54,17 +54,11 @@ def integrate(app_dir):
         am_app_mk_fp.write("SRCS += " + str(obj.relative_to("build/" + ARCH)) + "\n")
     os.remove(redefine_sym_file)
     am_app_c_fp.write(f"""extern int __am_{app_name}_main(const char *);
-static void am_{app_name}_thread(void *mainargs) {{
-  __am_{app_name}_main(mainargs);
-}}
 static void am_{app_name}(int argc, char *argv[]) {{
-  heap = am_apps_heap;
-  char *mainargs = argc >= 2 ? argv[1] : "";
-  rt_thread_t tid = rt_thread_create("{app_name}", am_{app_name}_thread, mainargs, 0x4000, 0, 20);
-  rt_thread_startup(tid);
-  rt_thread_yield();
+  am_app_start_wrapper("{app_name}", __am_{app_name}_main, argc, argv);
 }}
-MSH_CMD_EXPORT(am_{app_name}, AM {app_name});""")
+MSH_CMD_EXPORT(am_{app_name}, AM {app_name});
+""")
 
 read_lib_symbols("am")
 read_lib_symbols("klib")
@@ -73,6 +67,18 @@ am_app_mk_fp.write("SRCS += build/am-apps.c\n")
 am_app_c_fp.write("""#include <am.h>
 #include <rtthread.h>
 extern Area am_apps_heap;
+static void am_app_start_thread(void *args) {
+  void (*fn)(const char *mainargs) = ((void **)args)[0];
+  const char *mainargs = ((void **)args)[1];
+  fn(mainargs);
+}
+static void am_app_start_wrapper(const char *app_name, void *app_main, int argc, char *argv[]) {
+  heap = am_apps_heap;
+  void *args[2] = { app_main, (argc >= 2 ? argv[1] : "") };
+  rt_thread_t tid = rt_thread_create(app_name, am_app_start_thread, args, 0x4000, 0, 20);
+  rt_thread_startup(tid);
+  rt_thread_yield();
+}
 bool __dummy_ioe_init() { return true; }
 bool __dummy_cte_init(Context *(*handler)(Event ev, Context *ctx)) { return true; }
 bool __dummy_vme_init(void *(*pgalloc)(int), void (*pgfree)(void *)) { return true; }
