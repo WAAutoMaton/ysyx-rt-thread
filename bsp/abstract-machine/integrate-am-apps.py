@@ -19,6 +19,7 @@ am_init_sym = [ "trm_init", "ioe_init", "cte_init", "vme_init", "mpe_init" ]
 app_dir_list = [
   AM_KERNELS_HOME / "kernels" / "hello",
   AM_KERNELS_HOME / "benchmarks" / "microbench",
+  AM_KERNELS_HOME / "kernels" / "typing-game",
 ]
 
 def read_lib_symbols(lib):
@@ -31,7 +32,7 @@ def read_lib_symbols(lib):
     lib_sym += res.stdout.strip().split('\n')
 
 def integrate(app_dir):
-    app_name = app_dir.name
+    app_name = app_dir.name.replace("-", "_")
     os.system(f"make -j ARCH={ARCH} -C {str(app_dir)}")
     dst = Path("build") / ARCH / "am-apps" / app_name
     dst.mkdir(parents=True, exist_ok=True)
