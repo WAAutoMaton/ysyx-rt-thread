@@ -493,7 +493,7 @@ rt_thread_t rt_thread_create(const char *name,
         return RT_NULL;
 
 #ifdef __ISA_NATIVE__
-    const rt_uint32_t stack_size_min = 0x4000;
+    const rt_uint32_t stack_size_min = 0x8000;
     if (stack_size < stack_size_min) stack_size = stack_size_min;
 #endif
 
