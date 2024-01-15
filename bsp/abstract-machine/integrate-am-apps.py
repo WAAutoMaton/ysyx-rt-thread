@@ -81,7 +81,6 @@ static void am_app_start_wrapper(const char *app_name, void *app_main, int argc,
   void *args[2] = { app_main, (argc >= 2 ? argv[1] : "") };
   rt_thread_t tid = rt_thread_create(app_name, am_app_start_thread, args, 0x4000, 0, 20);
   rt_thread_startup(tid);
-  rt_thread_yield();
 }
 bool __dummy_ioe_init() { return true; }
 bool __dummy_cte_init(Context *(*handler)(Event ev, Context *ctx)) { return true; }
