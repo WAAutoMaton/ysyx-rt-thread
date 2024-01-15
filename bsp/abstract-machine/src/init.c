@@ -28,6 +28,8 @@ void rt_hw_board_init() {
   extern char __am_apps_bss_start, __am_apps_bss_end;
   am_apps_data = RANGE(&__am_apps_data_start, &__am_apps_data_end);
   am_apps_bss  = RANGE(&__am_apps_bss_start,  &__am_apps_bss_end);
+  printf("am-apps.data.size = %ld, am-apps.bss.size = %ld\n",
+      am_apps_data.end - am_apps_data.start, am_apps_bss.end - am_apps_bss.start);
 
   uint32_t data_size = am_apps_data.end - am_apps_data.start;
   am_apps_data_content = rt_malloc(data_size);
