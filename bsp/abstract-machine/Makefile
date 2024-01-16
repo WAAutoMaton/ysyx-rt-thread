@@ -29,4 +29,7 @@ menuconfig:
 	scons --genconfig
 	$(MAKE) init
 
+update:
+	python integrate-am-apps.py ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE)
+
 .PHONY: init menuconfig

@@ -3,9 +3,28 @@
 import sys, os, shutil, subprocess
 from pathlib import Path
 
+# global settings
 AM_HOME = Path(os.environ["AM_HOME"])
 AM_KERNELS_HOME = (AM_HOME / ".." / "am-kernels").resolve()
-ARCH = "native"
+app_dir_list = [
+  AM_KERNELS_HOME / "kernels" / "hello",
+  AM_KERNELS_HOME / "benchmarks" / "microbench",
+  AM_KERNELS_HOME / "kernels" / "typing-game",
+  AM_KERNELS_HOME / ".." / "fceux-am",
+]
+
+if len(sys.argv) != 3:
+    print("Usage: python3 integrate-am-apps.py ARCH=[AM arch] CROSS_COMPILE=[prefix]")
+    exit(-1)
+if not sys.argv[1].startswith("ARCH="):
+    print("Bad ARCH argument")
+    exit(-1)
+ARCH = sys.argv[1][5:]
+if not sys.argv[2].startswith("CROSS_COMPILE="):
+    print("Bad CROSS_COMPILE argument")
+    exit(-1)
+CROSS_COMPILE = sys.argv[2][14:]
+
 Path("build").mkdir(exist_ok=True)
 am_app_mk_fp = open("am-apps.mk", "w")
 am_app_c_fp  = open("build/am-apps.c" , "w")
@@ -16,17 +35,12 @@ lib_sym = [
   "printf", "sprintf", "snprintf", "vsprintf", "vsnprintf",
 ]
 am_init_sym = [ "trm_init", "ioe_init", "cte_init", "vme_init", "mpe_init" ]
-app_dir_list = [
-  AM_KERNELS_HOME / "kernels" / "hello",
-  AM_KERNELS_HOME / "benchmarks" / "microbench",
-  AM_KERNELS_HOME / "kernels" / "typing-game",
-]
 
 def read_lib_symbols(lib):
     libfile = AM_HOME / lib / "build" / f"{lib}-{ARCH}.a"
     if (not libfile.exists()):
         os.system("make -j ARCH=" + ARCH + " -C " + str(AM_HOME / lib))
-    cmd = f"nm -g --defined-only --format=just-symbols {str(libfile)}"
+    cmd = f"{CROSS_COMPILE}nm -g --defined-only --format=just-symbols {str(libfile)}"
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     global lib_sym
     lib_sym += res.stdout.strip().split('\n')
@@ -49,8 +63,8 @@ def integrate(app_dir):
             redefine_sym_fp.write(f"__am_{app_name}_{f} {f}\n")
     redefine_sym_fp.close()
     for obj in objs:
-        os.system(f"objcopy --prefix-symbols=__am_{app_name}_ --prefix-sections=__am_apps {str(obj)}")
-        os.system(f"objcopy --redefine-syms=redefine_sym.txt {str(obj)}")
+        os.system(f"{CROSS_COMPILE}objcopy --prefix-symbols=__am_{app_name}_ --prefix-sections=__am_apps {str(obj)}")
+        os.system(f"{CROSS_COMPILE}objcopy --redefine-syms=redefine_sym.txt {str(obj)}")
         am_app_mk_fp.write("SRCS += " + str(obj.relative_to("build/" + ARCH)) + "\n")
     os.remove(redefine_sym_file)
     am_app_c_fp.write(f"""extern int __am_{app_name}_main(const char *);
