@@ -32,8 +32,10 @@ void rt_hw_board_init() {
       am_apps_data.end - am_apps_data.start, am_apps_bss.end - am_apps_bss.start);
 
   uint32_t data_size = am_apps_data.end - am_apps_data.start;
-  am_apps_data_content = rt_malloc(data_size);
-  assert(am_apps_data_content != NULL);
+  if (data_size != 0) {
+    am_apps_data_content = rt_malloc(data_size);
+    assert(am_apps_data_content != NULL);
+  }
   memcpy(am_apps_data_content, am_apps_data.start, data_size);
 
 #ifdef RT_USING_CONSOLE
