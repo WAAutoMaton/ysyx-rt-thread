@@ -42,4 +42,4 @@ SECTIONS {
     . = ALIGN(8);
   }
 }
-INSERT AFTER .bss;
+INSERT BEFORE .bss;
