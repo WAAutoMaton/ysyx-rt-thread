@@ -43,7 +43,7 @@ def read_lib_symbols(lib):
     cmd = f"{CROSS_COMPILE}nm -g --defined-only --format=just-symbols {str(libfile)}"
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     global lib_sym
-    lib_sym += res.stdout.strip().split('\n')
+    lib_sym = list(set(lib_sym + res.stdout.strip().split('\n')))
 
 def integrate(app_dir):
     app_name = app_dir.name.replace("-", "_")
