@@ -29,6 +29,7 @@ typedef unsigned long useconds_t;
 #define rewinddir rt_rewinddir
 #define closedir  rt_closedir
 #define chdir     rt_chdir
+#define access    rt_access
 #define setcwd    rt_setcwd
 #define getcwd    rt_getcwd
 
