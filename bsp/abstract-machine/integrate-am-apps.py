@@ -27,7 +27,7 @@ if not sys.argv[2].startswith("CROSS_COMPILE="):
 CROSS_COMPILE = sys.argv[2][14:]
 
 Path("build").mkdir(exist_ok=True)
-am_app_mk_fp = open("am-apps.mk", "w")
+am_app_mk_fp = open(f"build/{ARCH}/am-apps.mk", "w")
 am_app_c_fp  = open("build/am-apps.c" , "w")
 lib_sym = [
   "memset", "memcpy", "memmove", "memcmp",
