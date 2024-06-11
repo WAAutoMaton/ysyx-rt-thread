@@ -42,9 +42,12 @@ def read_lib_symbols(lib):
     if (not libfile.exists()):
         os.system("make -j ARCH=" + ARCH + " -C " + str(AM_HOME / lib))
     cmd = f"{CROSS_COMPILE}nm -g --defined-only --format=just-symbols {str(libfile)}"
+    print(cmd)
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    t = res.stdout.strip()
+    print(t)
     global lib_sym
-    lib_sym = list(set(lib_sym + res.stdout.strip().split('\n')))
+    lib_sym = list(set(lib_sym + t.split('\n')))
 
 def integrate(app_dir):
     app_name = app_dir.name.replace("-", "_")
@@ -55,6 +58,7 @@ def integrate(app_dir):
     objs = dst.rglob("*.o")
     redefine_sym_file = "redefine_sym.txt"
     redefine_sym_fp = open(redefine_sym_file, "w")
+    print(lib_sym)
     for f in lib_sym:
         if f in am_init_sym:
             redefine_sym_fp.write(f"__am_{app_name}_{f} __dummy_{f}\n")
@@ -64,11 +68,12 @@ def integrate(app_dir):
             redefine_sym_fp.write(f"__am_{app_name}_{f} {f}\n")
     redefine_sym_fp.close()
     for obj in objs:
-        os.system(f"{CROSS_COMPILE}objcopy --prefix-symbols=__am_{app_name}_ --set-section-flags .text*=readonly,noload --set-section-flags .*rodata*=readonly,noload {str(obj)}")
+        #os.system(f"{CROSS_COMPILE}objcopy --redefine-sym main=mainx {str(obj)}")
+        os.system(f"{CROSS_COMPILE}objcopy --prefix-symbols=__am_{app_name}_  --set-section-flags .text*=readonly,noload --set-section-flags .*rodata*=readonly,noload {str(obj)}")
         os.system(f"{CROSS_COMPILE}objcopy --redefine-syms=redefine_sym.txt --prefix-alloc-sections=__am_apps {str(obj)}")
         os.system(f"{CROSS_COMPILE}objcopy --set-section-flags .text*=readonly,code,alloc --set-section-flags .*rodata*=readonly,data,alloc {str(obj)}")
         am_app_mk_fp.write("SRCS += " + str(obj.relative_to("build/" + ARCH)) + "\n")
-    os.remove(redefine_sym_file)
+    #os.remove(redefine_sym_file)
     am_app_c_fp.write(f"""extern int __am_{app_name}_main(const char *);
 static void am_{app_name}(int argc, char *argv[]) {{
   am_app_start_wrapper("{app_name}", __am_{app_name}_main, argc, argv);

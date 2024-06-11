@@ -7,7 +7,7 @@ RTCONFIG_H = rtconfig.h
 NAME = rtthread
 SRCS = $(shell find src -name "*.c")
 CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
-CFLAGS += -Wno-nonnull-compare
+CFLAGS += -Wno-nonnull-compare -Wno-unused-function
 LDFLAGS += -T extra.ld
 -include $(FILE_MK)
 -include $(AM_APPS_MK)
